@@ -15,7 +15,7 @@ PURPLE = (160, 32, 240)
 
 pygame.init()
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Maze Solver (Press B=🟦 BFS, D=🔴 DFS, K=🟢 Kruskal)")
+pygame.display.set_caption("Maze Solver (Press B=🟦 BFS, D=🔴 DFS, K=🟢 Kruskal, R=Reset)")
 
 class Cell:
     def __init__(self, row, col):
@@ -45,6 +45,13 @@ def draw_maze():
 def draw_start_end(start, end):
     start.draw(win, ORANGE)
     end.draw(win, PURPLE)
+
+def reset_maze_colors():
+    draw_maze()
+    start = grid[0][0]
+    end = grid[ROWS - 1][COLS - 1]
+    draw_start_end(start, end)
+    pygame.display.update()
 
 def get_neighbors(cell):
     neighbors = []
@@ -115,13 +122,20 @@ def solve_bfs(start, end):
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: pygame.quit(); return
+            if event.type == pygame.QUIT: 
+                pygame.quit(); 
+                return
+            #Handler tombol r
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                reset_maze_colors()
+                return
 
         if not done and queue:
             current = queue.popleft()
 
             if current == end:
                 done = True
+                print("BFS: Path found!")
             else:
                 current.draw(win, GREEN)
                 draw_start_end(start, end)
@@ -135,6 +149,15 @@ def solve_bfs(start, end):
                             if (r, c) not in visited:
                                 visited.add((r, c))
                                 queue.append(grid[r][c])
+        elif done:
+            #tunggu input untuk reset atau keluar
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    reset_maze_colors()
+                    return
 
 def solve_dfs(start, end):
     stack = [start]
@@ -143,13 +166,20 @@ def solve_dfs(start, end):
 
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: pygame.quit(); return
+            if event.type == pygame.QUIT: 
+                pygame.quit(); 
+                return
+            #Handle tombol r
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                reset_maze_colors()
+                return
 
         if not done and stack:
             current = stack.pop()
 
             if current == end:
                 done = True
+                print("DFS: Path found!")
             else:
                 current.draw(win, GREEN)
                 draw_start_end(start, end)
@@ -163,6 +193,15 @@ def solve_dfs(start, end):
                             if (r, c) not in visited:
                                 visited.add((r, c))
                                 stack.append(grid[r][c])
+        elif done:
+            #tunggu input untuk reset atau keluar
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    reset_maze_colors()
+                    return
 
 def main():
     generate_maze_backtracker()
@@ -172,6 +211,12 @@ def main():
     draw_start_end(start, end)
     pygame.display.update()
 
+    print("Controls:")
+    print("B = BFS Algorithm")
+    print("D = DFS Algorithm") 
+    print("K = Generate new maze (Kruskal)")
+    print("R = Reset maze colors")
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -180,14 +225,20 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b:
+                    print("Running BFS...")
                     solve_bfs(start, end)
                 elif event.key == pygame.K_d:
+                    print("Running DFS...")
                     solve_dfs(start, end)
                 elif event.key == pygame.K_k:
+                    print("Generating new maze...")
                     generate_maze_kruskal()
                     draw_maze()
                     draw_start_end(start, end)
                     pygame.display.update()
+                elif event.key == pygame.K_r:
+                    print("Resetting maze colors...")
+                    reset_maze_colors()
 
 if __name__ == "__main__":
     main()
